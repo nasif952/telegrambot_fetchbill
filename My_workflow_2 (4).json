@@ -1,0 +1,422 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -520,
+        -100
+      ],
+      "id": "9aff2fe2-5c2b-4990-840e-bf1726888495",
+      "name": "Telegram Trigger",
+      "webhookId": "20cd2115-73e2-404a-9368-67dfbeaf8c5c",
+      "credentials": {
+        "telegramApi": {
+          "id": "84HDvKCptDcPyQZt",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $json.message.chat.id }}",
+        "message": "To Get  Monthly Bill Information,Please Login First .\nDo you wish to proceed?",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "✅ Login"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -300,
+        -100
+      ],
+      "id": "38af73aa-d2d0-4ec6-b8ce-0543cb7f20a5",
+      "name": "Telegram",
+      "webhookId": "90a33248-5727-4da0-b301-fd3f62b9655b",
+      "credentials": {
+        "telegramApi": {
+          "id": "84HDvKCptDcPyQZt",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e4e9f5d3-6c6d-41c4-80d8-03cf90888ddc",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "=Tt",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -140,
+        -100
+      ],
+      "id": "f0131416-e8f9-4a97-bde6-f05112b0b641",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "collection": "user1",
+        "options": {},
+        "query": "={{ JSON.stringify({ \"accountid\": Number($json.data['ACCOUNT ID']) }) }}\n"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        660,
+        -360
+      ],
+      "id": "880cd407-79af-46ac-964a-e8cd78ac873b",
+      "name": "MongoDB",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "91Mrl7w8aUUNDINj",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "Thank You for Joining ",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        440,
+        180
+      ],
+      "id": "3b78df1d-2c42-44b5-b01c-20ccfa5abf3b",
+      "name": "Telegram1",
+      "webhookId": "a894a3b4-9537-4311-9cbc-875c7240c18c",
+      "credentials": {
+        "telegramApi": {
+          "id": "84HDvKCptDcPyQZt",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "message": "Please Login",
+        "responseType": "customForm",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "ACCOUNT ID",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "ACCOUNT PASSWORD",
+              "fieldType": "password",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "messageButtonLabel": "Take Me To Login Page",
+          "responseFormTitle": "LOGIN ",
+          "responseFormButtonLabel": "Submit"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        420,
+        -320
+      ],
+      "id": "e3ec6f5a-55ae-467f-a119-0a7e8bc4bd4b",
+      "name": "Telegram2",
+      "webhookId": "eae9cb67-a8b4-46e0-8567-671d5d830587",
+      "credentials": {
+        "telegramApi": {
+          "id": "84HDvKCptDcPyQZt",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "type": "SHA256",
+        "value": "={{ $('Telegram2').item.json.data['ACCOUNT PASSWORD'] }}",
+        "dataPropertyName": "hashed_n8n"
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        880,
+        -360
+      ],
+      "id": "7c07ed01-1e6b-4e45-aa47-79ed4d347684",
+      "name": "Crypto",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e4e9f5d3-6c6d-41c4-80d8-03cf90888ddc",
+              "leftValue": "={{ $json.hashed_n8n }}",
+              "rightValue": "={{ $('MongoDB').item.json.password }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        -360
+      ],
+      "id": "04f1a509-bef4-4ad4-b9b2-8f7c57bb627b",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "LOGIN FAILED , CHECK YOUR ID OR PASSWORD !!",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1560,
+        -120
+      ],
+      "id": "4a624971-2e40-4ac8-ba65-d6055fc21089",
+      "name": "Telegram3",
+      "webhookId": "2943e5bc-7fcc-4965-8d50-0a3fcc42c05a",
+      "credentials": {
+        "telegramApi": {
+          "id": "84HDvKCptDcPyQZt",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "file": "https://img.freepik.com/free-vector/login-concept-illustration_114360-739.jpg?t=st=1741295885~exp=1741299485~hmac=e946e35f834d485ca2cd2bb199fcdf0601c7a5c302a64288228562b1e3e8801a&w=740",
+        "additionalFields": {
+          "caption": "                                         ✅Login Successful✅"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1380,
+        -400
+      ],
+      "id": "4b3b5717-8fa9-4502-9d36-d9d0c84632de",
+      "name": "Telegram4",
+      "webhookId": "1b0e71bb-498d-42c8-a519-8c6a0e7b1825",
+      "credentials": {
+        "telegramApi": {
+          "id": "84HDvKCptDcPyQZt",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=Dear User {{ $('MongoDB').item.json.name }} ,your Monthly Mobile Bill is  {{ $('MongoDB').item.json.monthlybill }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1600,
+        -400
+      ],
+      "id": "8a0224f9-b380-44b2-b5b6-41bc8eba0693",
+      "name": "Telegram5",
+      "webhookId": "e1625b25-8bf3-4226-bd7d-8182931388ac",
+      "credentials": {
+        "telegramApi": {
+          "id": "84HDvKCptDcPyQZt",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Telegram2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB": {
+      "main": [
+        [
+          {
+            "node": "Crypto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram2": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Telegram4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram3": {
+      "main": [
+        [
+          {
+            "node": "Telegram2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram4": {
+      "main": [
+        [
+          {
+            "node": "Telegram5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "d861faee-59d2-4e23-b00c-c36cb0e08a4f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2f52705f4da3f66e87ae548db599bb3a89601699b76aadb53b8013102b8e36b1"
+  },
+  "id": "z5Q5a9zEMA0gIBlt",
+  "tags": []
+}
