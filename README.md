@@ -17,3 +17,8 @@ accountid: 38, name: "Bella",   password: "bella999",    monthlybill: 3300
 
 Demo Video :
 https://drive.google.com/file/d/1m6FKt5DKp5_1krRWJhUPDbHWxSKnXFQX/view?usp=drive_link
+
+
+Limitations : 
+I Used cloud based n8n to deploy this , for the best  hashing practices "bcrypt / Argon2" wasn't used because cloud integration is not possible with n8n. 
+Using the n8n via docker would have served the purpose as there are freedom to use external NPM packages.For now , used the 'Secure Hash Algorithm 256-bit' that was pre built node from n8n
